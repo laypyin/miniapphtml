@@ -123,8 +123,7 @@ background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothi
                 <h3 style="margin-bottom: 12px; color: var(--text-main);">အကူအညီ လိုအပ်ပါသလား?</h3>
                 <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">VPN အသုံးပြုနည်း ဗီဒီယိုများ ကြည့်ရန် သို့မဟုတ် Admin နှင့် တိုက်ရိုက် ဆက်သွယ်ပါ။</p>
                 <button class="btn" onclick="window.location.href='https://t.me/novaxvpnofficial'"><i class="fa-solid fa-book"></i> အသုံးပြုနည်း ကြည့်ရန်</button>
-                <button class="btn btn-outline" onclick="window.location.href='https://t.me/laylwintguy'"><i class="fa-solid fa-headset"></i> Admin နှင့်
-ပြောမည်</button>
+                <button class="btn btn-outline" onclick="window.location.href='https://t.me/laylwintguy'"><i class="fa-solid fa-headset"></i> Admin နှင့် ပြောမည်</button>
             </div>
         </div>
     </div>
@@ -155,15 +154,18 @@ background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothi
         document.documentElement.style.setProperty('--tg-theme-button-color', tg.themeParams.button_color);
         document.documentElement.style.setProperty('--tg-theme-button-text-color', tg.themeParams.button_text_color);
         document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color);
+        
         // Telegram အမည်ယူပြီး နှုတ်ဆက်ခြင်း
         const userName = tg.initDataUnsafe?.user?.first_name || 'မိတ်ဆွေ';
         document.getElementById('user-greeting').innerHTML = `မင်္ဂလာပါ <span>${userName}</span>`;
+        
         function switchTab(tabId, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.getElementById('tab-' + tabId).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
             element.classList.add('active');
         }
+        
         // Home မှ Package ဝယ်ယူရန် ခလုတ်ကို နှိပ်ပါက Bot ဆီ Data ပို့ရန်
         function buyPackageFromBot() {
             tg.sendData("BUY_PACKAGE_MENU");
@@ -174,12 +176,15 @@ background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothi
             tg.sendData("REQUEST_TRIAL");
             tg.close();
         }
-        // --- Asynchronous Non-blocking Data Fetching ---
+
+        // --- Asynchronous Non-blocking Data Fetching & Error Debugging ---
         const userId = tg.initDataUnsafe?.user?.id;
         const homeTab = document.getElementById('tab-home');
+
         function renderNoAccountState() {
             homeTab.innerHTML = `
-            <div class="card" style="text-align:center; padding: 30px 10px;">                <p style="margin-bottom:20px; font-size: 1.1rem; color: var(--text-main);">လက်ရှိတွင် အကောင့်မရှိသေးပါ။</p>
+            <div class="card" style="text-align:center; padding: 30px 10px;">
+                <p style="margin-bottom:20px; font-size: 1.1rem; color: var(--text-main);">လက်ရှိတွင် အကောင့်မရှိသေးပါ။</p>
                 <button class="btn" onclick="buyPackageFromBot()">Package ဝယ်ယူရန်</button>
                 <button class="btn btn-warning" onclick="requestTrial()">၁ ရက် အစမ်းသုံးရန်</button>
             </div>
@@ -191,12 +196,18 @@ background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothi
                 </div>
             </div>`;
         }
+
         if (userId) {
-            // နောက်ကွယ်မှ API ကို တောင်းဆိုခြင်း (Telegram ကို Timeout မဖြစ်စေပါ)
+            // နောက်ကွယ်မှ API ကို တောင်းဆိုခြင်း
             fetch(`https://cherry.niceshop88.xyz/data/get_user_data?tg_id=${userId}`)
-                .then(res => res.json())
+                .then(res => {
+                    // API က 200 OK မဟုတ်ဘဲ 500, 403 စသည်ဖြင့် ပြန်လာပါက Error ဖမ်းရန်
+                    if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                    return res.json();
+                })
                 .then(data => {
-                    if (data.success && data.accounts.length > 0) {
+                    if (data.success && data.accounts && data.accounts.length > 0) {
+                        // အကောင့်ရှိပြီး Data မှန်ကန်စွာရရှိပါက UI ပြသရန်
                         let html = '';
                         data.accounts.forEach((acc, index) => {
                             let title = acc.username.includes('_trial') ? 'အစမ်းသုံး (Trial) အကောင့်' : (index === 0 ? 'ပင်မအကောင့် (Main)' : 'အပိုအကောင့် (Extra)');
@@ -217,8 +228,7 @@ background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothi
                                     <span>${acc.limit} ${acc.limit !== 'Unlimited' ? 'GB' : ''}</span>
                                 </div>
                                 <div class="progress-bar">
-                                    <div class="progress-fill" style="width:
-${percent}%;"></div>
+                                    <div class="progress-fill" style="width:${percent}%;"></div>
                                 </div>
                                 <div class="acc-detail">သက်တမ်းကုန်မည့်ရက်: <span>${expireDate}</span></div>
                             </div>`;
@@ -232,19 +242,38 @@ ${percent}%;"></div>
                             </div>
                         </div>
                         <div style="margin-top: 24px;">
-                            <button class="btn" onclick="alert('Android App:
-Hiddify\\niOS App: V2Box')"><i class="fa-brands fa-android"></i> Download Application</button>
+                            <button class="btn" onclick="alert('Android App:\\nHiddify\\niOS App: V2Box')"><i class="fa-brands fa-android"></i> Download Application</button>
                         </div>`;
                         homeTab.innerHTML = html;
-                    } else {
+                    } else if (data.success && data.accounts && data.accounts.length === 0) {
+                        // Success ဖြစ်သော်လည်း တကယ်တမ်း အကောင့်မရှိလျှင် မူလအတိုင်း ပြမည်
                         renderNoAccountState();
+                    } else {
+                        // Data ပုံစံမမှန်လျှင် သို့မဟုတ် Success မဟုတ်လျှင် (Backend Python Error)
+                        homeTab.innerHTML = `<div style="padding:20px; color:var(--warning); text-align:center;">API မှ Data ပုံစံမမှန်ပါ: <br><br> ${JSON.stringify(data)}</div>`;
                     }
                 })
                 .catch(err => {
-                    renderNoAccountState();
+                    // CORS သို့မဟုတ် Network Error တက်လျှင် အနီရောင်ဖြင့် ပြရန် (Debug)
+                    homeTab.innerHTML = `
+                        <div style="text-align:center; padding: 20px;">
+                            <i class="fa-solid fa-triangle-exclamation" style="font-size: 3rem; color: #ef4444; margin-bottom: 16px;"></i>
+                            <h3 style="color: #ef4444; margin-bottom: 12px;">ချိတ်ဆက်မှု အမှားအယွင်း</h3>
+                            <p style="color: var(--text-main); font-size: 0.95rem; margin-bottom: 16px;">${err.message}</p>
+                            <div style="background-color: rgba(239, 68, 68, 0.1); padding: 12px; border-radius: 8px; font-size: 0.85rem; color: #fca5a5;">
+                                <i class="fa-solid fa-circle-info"></i> CORS ပြဿနာ သို့မဟုတ် ချိတ်ဆက်မှုပြတ်တောက်ခြင်း ဖြစ်နိုင်ပါသည်။
+                            </div>
+                            <button class="btn btn-outline" onclick="window.location.reload()" style="margin-top:20px; color:var(--text-main); border-color:var(--text-muted);"><i class="fa-solid fa-rotate-right"></i> ပြန်လည်ကြိုးစားမည်</button>
+                        </div>`;
                 });
         } else {
-            renderNoAccountState();
+            // Telegram မှလွဲ၍ တခြား Browser မှ ဖွင့်လျှင် (သို့) Telegram ID မရလျှင် ပြရန်
+            homeTab.innerHTML = `
+                <div style="text-align:center; padding: 20px;">
+                    <i class="fa-solid fa-user-xmark" style="font-size: 3rem; color: var(--warning); margin-bottom: 16px;"></i>
+                    <h3 style="color: var(--warning); margin-bottom: 10px;">User ID မတွေ့ပါ</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">ကျေးဇူးပြု၍ Telegram မှတစ်ဆင့် App ကို ဖွင့်ပါ။</p>
+                </div>`;
         }
     </script>
 </body>
