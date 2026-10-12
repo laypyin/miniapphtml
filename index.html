@@ -2,13 +2,20 @@
 <html lang="my">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+
+    <meta name="theme-color" content="#0f172a">
+
     <title>NovaX VPN</title>
-    <!-- Telegram Web App Script -->
+
+    <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        /* Telegram Theme Colors */
         :root {
             --bg-color: var(--tg-theme-bg-color, #0f172a);
             --card-bg: var(--tg-theme-secondary-bg-color, #1e293b);
@@ -16,265 +23,1185 @@
             --text-muted: var(--tg-theme-hint-color, #94a3b8);
             --primary: var(--tg-theme-button-color, #3b82f6);
             --primary-text: var(--tg-theme-button-text-color, #ffffff);
+
             --warning: #f59e0b;
-            --gold: #d97706; /* Day mode ရွှေရောင် */
+            --gold: #d97706;
+            --success: #22c55e;
+            --danger: #ef4444;
+
+            --border-color: rgba(148, 163, 184, 0.18);
         }
-        /* Dark Mode ရွှေရောင် */
+
         @media (prefers-color-scheme: dark) {
             :root {
                 --gold: #ffd700;
             }
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; }
-        /* App Header */
-        .header { display: flex; align-items: center; justify-content: center; padding: 16px; border-bottom: 1px solid var(--card-bg); position: sticky; top: 0; background-color: var(--bg-color); z-index: 10; }
-        .header img { width: 30px; height: 30px; border-radius: 50%; margin-right: 10px; }
-        .header h1 { font-size: 1.2rem; font-weight: 600; color: var(--text-main); }
-        /* User Greeting */
-        .greeting { text-align: center; padding: 16px 16px 0 16px; font-size: 1.05rem; font-weight: 500; color: var(--text-main); }
-        .greeting span { color: var(--primary); font-weight: bold; }
-        /* Content Area */
-        .content { padding: 12px 16px 80px 16px; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        /* Card Styles */
-        .card { background-color: var(--card-bg); border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-        .card-title { font-size: 1rem; color: var(--text-main); margin-bottom: 12px; font-weight: 600; }
-        /* Progress Bar */
-        .data-stats { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px; color: var(--text-muted); }
-        .progress-bar { width: 100%; height: 8px; background-color: var(--bg-color); border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
-        .progress-fill { height: 100%; background-color: var(--warning); width: 0%; }
-        /* Account Details */
-        .acc-detail { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; }
-        .acc-detail span { color: var(--text-main); font-weight: 500; }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
+        body {
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Tahoma,
+                sans-serif;
+
+            background-color: var(--bg-color);
+            color: var(--text-main);
+
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        /* Header */
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 16px;
+
+            border-bottom: 1px solid var(--border-color);
+
+            position: sticky;
+            top: 0;
+
+            background-color: var(--bg-color);
+
+            z-index: 10;
+        }
+
+        .brand-icon {
+            font-size: 25px;
+            margin-right: 10px;
+            color: var(--warning);
+        }
+
+        .header h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* Greeting */
+
+        .greeting {
+            text-align: center;
+
+            padding: 16px 16px 0;
+
+            font-size: 1.05rem;
+            font-weight: 500;
+
+            color: var(--text-main);
+        }
+
+        .greeting span {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* Main Content */
+
+        .content {
+            padding: 12px 16px 95px;
+            min-height: 65vh;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.16s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0.65;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Cards */
+
+        .card {
+            background-color: var(--card-bg);
+
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+
+            padding: 16px;
+            margin-bottom: 16px;
+
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1rem;
+            color: var(--text-main);
+
+            margin-bottom: 12px;
+
+            font-weight: 600;
+        }
+
+        /* Data Usage */
+
+        .data-stats {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+
+            font-size: 0.85rem;
+
+            margin-bottom: 8px;
+
+            color: var(--text-muted);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+
+            background-color: var(--bg-color);
+
+            border-radius: 4px;
+            overflow: hidden;
+
+            margin-bottom: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+
+            background-color: var(--warning);
+
+            border-radius: 4px;
+
+            transition: width 0.25s ease;
+        }
+
+        .acc-detail {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+
+            margin-bottom: 4px;
+        }
+
+        .acc-detail span {
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
         /* Buttons */
-        .btn { display: block; width: 100%; padding: 14px; text-align: center; background-color: var(--primary); color: var(--primary-text); border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; text-decoration: none; cursor: pointer; margin-bottom: 10px; }
-        .btn-outline { background-color: transparent; border: 1px solid var(--text-muted); color: var(--text-main); }
-        .btn-warning { background-color: var(--warning); color: #fff; margin-top: 10px; }
-        /* Package Styles */
-        .pkg-price { font-size: 1.5rem; font-weight: bold; color: var(--gold); margin: 8px 0; }
-        .pkg-features { list-style: none; margin-bottom: 16px; font-size: 0.9rem; color: var(--text-muted); }
-        .pkg-features li { margin-bottom: 6px; }
-        .pkg-features i { color: var(--primary); margin-right: 8px; }
+
+        .btn {
+            display: block;
+
+            width: 100%;
+            min-height: 46px;
+
+            padding: 13px 14px;
+
+            text-align: center;
+
+            background-color: var(--primary);
+            color: var(--primary-text);
+
+            border: none;
+            border-radius: 8px;
+
+            font-size: 1rem;
+            font-weight: 600;
+
+            text-decoration: none;
+
+            cursor: pointer;
+
+            margin-bottom: 10px;
+
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn:last-child {
+            margin-bottom: 0;
+        }
+
+        .btn:active {
+            opacity: 0.82;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+
+            border: 1px solid var(--text-muted);
+
+            color: var(--text-main);
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: #ffffff;
+
+            margin-top: 10px;
+        }
+
+        /* Packages */
+
+        .section-title {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            color: var(--text-main);
+        }
+
+        .pkg-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+
+            color: var(--gold);
+
+            margin: 8px 0;
+        }
+
+        .pkg-features {
+            list-style: none;
+
+            margin-bottom: 16px;
+
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .pkg-features li {
+            margin-bottom: 6px;
+        }
+
+        .feature-icon {
+            color: var(--primary);
+            margin-right: 8px;
+        }
+
         /* Server Status */
-        .server-status { font-size: 0.85rem; color: var(--text-muted); line-height: 1.8; }
-        .server-status i { color: #22c55e; margin-right: 6px; font-size: 0.6rem; vertical-align: middle; }
+
+        .server-status {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+
+            line-height: 1.9;
+        }
+
+        .status-dot {
+            color: var(--success);
+            margin-right: 6px;
+        }
+
+        /* Loading */
+
+        .loading-card {
+            text-align: center;
+            padding: 30px 16px;
+        }
+
+        .loading-spinner {
+            width: 27px;
+            height: 27px;
+
+            margin: 0 auto 12px;
+
+            border: 3px solid var(--border-color);
+            border-top-color: var(--primary);
+
+            border-radius: 50%;
+
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Messages */
+
+        .message-icon {
+            font-size: 2.4rem;
+            margin-bottom: 12px;
+        }
+
+        .message-title {
+            font-size: 1.05rem;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        .message-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            margin-bottom: 18px;
+        }
+
         /* Bottom Navigation */
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--card-bg); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid var(--bg-color); z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 0.75rem; cursor: pointer; text-decoration: none; }
-        .nav-item.active { color: var(--primary); }
-        .nav-item i { font-size: 1.2rem; margin-bottom: 4px; }
+
+        .nav-bar {
+            position: fixed;
+
+            bottom: 0;
+            left: 0;
+            right: 0;
+
+            background-color: var(--card-bg);
+
+            display: flex;
+            justify-content: space-around;
+
+            padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+
+            border-top: 1px solid var(--border-color);
+
+            z-index: 100;
+
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-item {
+            flex: 1;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            gap: 4px;
+
+            color: var(--text-muted);
+
+            font-size: 0.75rem;
+
+            cursor: pointer;
+            text-decoration: none;
+
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            font-size: 1.25rem;
+            line-height: 1.2;
+        }
+
+        /* Reduce motion when requested */
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
     </style>
 </head>
+
 <body>
+
     <!-- Header -->
-    <div class="header">
-        <i class="fa-solid fa-shield-halved" style="color: var(--warning); font-size: 24px; margin-right: 10px;"></i>
+    <header class="header">
+        <span class="brand-icon" aria-hidden="true">🛡️</span>
         <h1>NovaX VPN</h1>
-    </div>
-    <!-- User Greeting -->
+    </header>
+
+    <!-- Greeting -->
     <div class="greeting" id="user-greeting">
         မင်္ဂလာပါ <span>မိတ်ဆွေ</span>
     </div>
-    <!-- Content Area -->
-    <div class="content">
-        <!-- Tab 1: HOME -->
-        <div id="tab-home" class="tab-content active">
-            <div style="text-align:center; padding:20px; color: var(--text-main);"> Data များ ရှာဖွေနေပါသည်... ⏳  </div>
-        </div>
-        <!-- Tab 2: PACKAGES -->
-        <div id="tab-packages" class="tab-content">
-            <h2 style="font-size: 1.1rem; margin-bottom: 16px; color: var(--text-main);">ရရှိနိုင်သော Package များ</h2>
-            <div class="card">
-                <div class="card-title">Package A (50 GB)</div>
-                <div class="pkg-price">၂,၅၀၀ ကျပ်</div>
-                <ul class="pkg-features">
-                    <li><i class="fa-solid fa-check"></i> 50 GB Data သုံးစွဲခွင့်</li>
-                    <li><i class="fa-solid fa-check"></i> 30 ရက် သက်တမ်း</li>
-                    <li><i class="fa-solid fa-check"></i> မြန်နှုန်းမြင့် ဆာဗာများ</li>
-                </ul>
-            </div>
-            <div class="card">
-                <div class="card-title">Package B (100 GB)</div>
-                <div class="pkg-price">၃,၉၅၀ ကျပ်</div>
-                <ul class="pkg-features">
-                    <li><i class="fa-solid fa-check"></i> 100 GB Data သုံးစွဲခွင့်</li>
-                    <li><i class="fa-solid fa-check"></i> 30 ရက် သက်တမ်း</li>
-                    <li><i class="fa-solid fa-check"></i> မြန်နှုန်းမြင့် ဆာဗာများ</li>
-                </ul>
-            </div>
-            <div class="card">
-                <div class="card-title">Package C (Unlimited)</div>
-                <div class="pkg-price">၅,၅၀၀ ကျပ်</div>
-                <ul class="pkg-features">
-                    <li><i class="fa-solid fa-check"></i> Unlimited Data သုံးစွဲခွင့်</li>
-                    <li><i class="fa-solid fa-check"></i> 30 ရက် သက်တမ်း</li>
-                    <li><i class="fa-solid fa-check"></i> မြန်နှုန်းမြင့် ဆာဗာများ</li>
-                </ul>
-            </div>
-        </div>
-        <!-- Tab 3: SUPPORT -->
-        <div id="tab-support" class="tab-content">
-            <div class="card text-center" style="text-align: center; padding: 30px 16px;">
-                <i class="fa-solid fa-circle-info" style="font-size: 3rem; color: var(--primary); margin-bottom: 16px;"></i>
-                <h3 style="margin-bottom: 12px; color: var(--text-main);">အကူအညီ လိုအပ်ပါသလား?</h3>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">VPN အသုံးပြုနည်း ဗီဒီယိုများ ကြည့်ရန် သို့မဟုတ် Admin နှင့် တိုက်ရိုက် ဆက်သွယ်ပါ။</p>
-                <button class="btn" onclick="window.location.href='https://t.me/novaxvpnofficial'"><i class="fa-solid fa-book"></i> အသုံးပြုနည်း ကြည့်ရန်</button>
-                <button class="btn btn-outline" onclick="window.location.href='https://t.me/laylwintguy'"><i class="fa-solid fa-headset"></i> Admin နှင့် ပြောမည်</button>
-            </div>
-        </div>
-    </div>
-    <!-- Bottom Navigation -->
-    <div class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('home', this)">
-            <i class="fa-solid fa-house"></i>
-            <span>Home</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('packages', this)">
-            <i class="fa-solid fa-box"></i>
-            <span>Packages</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('support', this)">
-            <i class="fa-solid fa-headset"></i>
-            <span>Support</span>
-        </div>
-    </div>
-    <!-- JavaScript -->
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        // CSS Variables များကို Telegram Theme အရ ပြောင်းလဲပေးခြင်း
-        document.documentElement.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color);
-        document.documentElement.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color);
-        document.documentElement.style.setProperty('--tg-theme-hint-color', tg.themeParams.hint_color);
-        document.documentElement.style.setProperty('--tg-theme-link-color', tg.themeParams.link_color);
-        document.documentElement.style.setProperty('--tg-theme-button-color', tg.themeParams.button_color);
-        document.documentElement.style.setProperty('--tg-theme-button-text-color', tg.themeParams.button_text_color);
-        document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color);
-        
-        // Telegram အမည်ယူပြီး နှုတ်ဆက်ခြင်း
-        const userName = tg.initDataUnsafe?.user?.first_name || 'မိတ်ဆွေ';
-        document.getElementById('user-greeting').innerHTML = `မင်္ဂလာပါ <span>${userName}</span>`;
-        
-        function switchTab(tabId, element) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            element.classList.add('active');
-        }
-        
-        // Home မှ Package ဝယ်ယူရန် ခလုတ်ကို နှိပ်ပါက Bot ဆီ Data ပို့ရန်
-        function buyPackageFromBot() {
-            tg.sendData("BUY_PACKAGE_MENU");
-            tg.close();
-        }
-        // Home မှ Free Trial တောင်းဆိုခြင်း ခလုတ်ကို နှိပ်ပါက Bot ဆီ Data ပို့ရန်
-        function requestTrial() {
-            tg.sendData("REQUEST_TRIAL");
-            tg.close();
-        }
 
-        // --- Asynchronous Non-blocking Data Fetching & Error Debugging ---
-        const userId = tg.initDataUnsafe?.user?.id;
-        const homeTab = document.getElementById('tab-home');
+    <!-- Main Content -->
+    <main class="content">
 
-        function renderNoAccountState() {
-            homeTab.innerHTML = `
-            <div class="card" style="text-align:center; padding: 30px 10px;">
-                <p style="margin-bottom:20px; font-size: 1.1rem; color: var(--text-main);">လက်ရှိတွင် အကောင့်မရှိသေးပါ။</p>
-                <button class="btn" onclick="buyPackageFromBot()">Package ဝယ်ယူရန်</button>
-                <button class="btn btn-warning" onclick="requestTrial()">၁ ရက် အစမ်းသုံးရန်</button>
+        <!-- HOME -->
+        <section id="tab-home" class="tab-content active">
+
+            <!-- Initial Loading UI -->
+            <div class="card loading-card" id="initial-loading">
+                <div class="loading-spinner"></div>
+
+                <p class="loading-text">
+                    Data များ ရှာဖွေနေပါသည်...
+                </p>
             </div>
+
+        </section>
+
+        <!-- PACKAGES -->
+        <section id="tab-packages" class="tab-content">
+
+            <h2 class="section-title">
+                ရရှိနိုင်သော Package များ
+            </h2>
+
             <div class="card">
-                <div class="card-title" style="font-size: 0.9rem;">Server Status</div>
-                <div class="server-status">
-                    <div><i class="fa-solid fa-circle"></i> Singapore SG-1 (Online)</div>
-                    <div><i class="fa-solid fa-circle"></i> Japan JP-1 (Online)</div>
+                <div class="card-title">
+                    Package A (50 GB)
                 </div>
-            </div>`;
-        }
 
-        if (userId) {
-            // နောက်ကွယ်မှ API ကို တောင်းဆိုခြင်း
-            fetch(`https://cherry.niceshop88.xyz/data/get_user_data?tg_id=${userId}`)
-                .then(res => {
-                    // API က 200 OK မဟုတ်ဘဲ 500, 403 စသည်ဖြင့် ပြန်လာပါက Error ဖမ်းရန်
-                    if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
-                    return res.json();
-                })
-                .then(data => {
-                    if (data.success && data.accounts && data.accounts.length > 0) {
-                        // အကောင့်ရှိပြီး Data မှန်ကန်စွာရရှိပါက UI ပြသရန်
-                        let html = '';
-                        data.accounts.forEach((acc, index) => {
-                            let title = acc.username.includes('_trial') ? 'အစမ်းသုံး (Trial) အကောင့်' : (index === 0 ? 'ပင်မအကောင့် (Main)' : 'အပိုအကောင့် (Extra)');
-                            let expireDate = 'Unlimited';
-                            if (acc.expire !== 0) {
-                                let dateObj = new Date(acc.expire * 1000);
-                                let year = dateObj.getFullYear();
-                                let month = String(dateObj.getMonth() + 1).padStart(2, '0');
-                                let day = String(dateObj.getDate()).padStart(2, '0');
-                                expireDate = `${year}-${month}-${day}`;
-                            }
-                            let percent = acc.limit === "Unlimited" ? 1 : Math.min((acc.used / acc.limit) * 100, 100);
-                            html += `
-                            <div class="card">
-                                <div class="card-title">${title}</div>
-                                <div class="data-stats">
-                                    <span>${acc.used} GB သုံးပြီး</span>
-                                    <span>${acc.limit} ${acc.limit !== 'Unlimited' ? 'GB' : ''}</span>
-                                </div>
-                                <div class="progress-bar">
-                                    <div class="progress-fill" style="width:${percent}%;"></div>
-                                </div>
-                                <div class="acc-detail">သက်တမ်းကုန်မည့်ရက်: <span>${expireDate}</span></div>
-                            </div>`;
-                        });
-                        html += `
-                        <div class="card">
-                            <div class="card-title" style="font-size: 0.9rem;">Server Status</div>
-                            <div class="server-status">
-                                <div><i class="fa-solid fa-circle"></i> Singapore SG-1 (Online)</div>
-                                <div><i class="fa-solid fa-circle"></i> Japan JP-1 (Online)</div>
+                <div class="pkg-price">၂,၅၀၀ ကျပ်</div>
+
+                <ul class="pkg-features">
+                    <li>
+                        <span class="feature-icon">✓</span>
+                        50 GB Data သုံးစွဲခွင့်
+                    </li>
+
+                    <li>
+                        <span class="feature-icon">✓</span>
+                        30 ရက် သက်တမ်း
+                    </li>
+
+                    <li>
+                        <span class="feature-icon">✓</span>
+                        မြန်နှုန်းမြင့် ဆာဗာများ
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    Package B (100 GB)
+                </div>
+
+                <div class="pkg-price">၃,၉၅၀ ကျပ်</div>
+
+                <ul class="pkg-features">
+                    <li>
+                        <span class="feature-icon">✓</span>
+                        100 GB Data သုံးစွဲခွင့်
+                    </li>
+
+                    <li>
+                        <span class="feature-icon">✓</span>
+                        30 ရက် သက်တမ်း
+                    </li>
+
+                    <li>
+                        <span class="feature-icon">✓</span>
+                        မြန်နှုန်းမြင့် ဆာဗာများ
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    Package C (Unlimited)
+                </div>
+
+                <div class="pkg-price">၅,၅၀၀ ကျပ်</div>
+
+                <ul class="pkg-features">
+                    <li>
+                        <span class="feature-icon">✓</span>
+                        Unlimited Data သုံးစွဲခွင့်
+                    </li>
+
+                    <li>
+                        <span class="feature-icon">✓</span>
+                        30 ရက် သက်တမ်း
+                    </li>
+
+                    <li>
+                        <span class="feature-icon">✓</span>
+                        မြန်နှုန်းမြင့် ဆာဗာများ
+                    </li>
+                </ul>
+            </div>
+
+        </section>
+
+        <!-- SUPPORT -->
+        <section id="tab-support" class="tab-content">
+
+            <div class="card" style="text-align:center; padding:30px 16px;">
+
+                <div
+                    style="font-size:2.7rem; color:var(--primary); margin-bottom:16px;"
+                    aria-hidden="true"
+                >ⓘ</div>
+
+                <h3 class="message-title">
+                    အကူအညီ လိုအပ်ပါသလား?
+                </h3>
+
+                <p class="message-text">
+                    VPN အသုံးပြုနည်း ဗီဒီယိုများ ကြည့်ရန် သို့မဟုတ်
+                    Admin နှင့် တိုက်ရိုက် ဆက်သွယ်ပါ။
+                </p>
+
+                <button
+                    class="btn"
+                    type="button"
+                    onclick="openExternal('https://t.me/novaxvpnofficial')"
+                >
+                    📖 အသုံးပြုနည်း ကြည့်ရန်
+                </button>
+
+                <button
+                    class="btn btn-outline"
+                    type="button"
+                    onclick="openExternal('https://t.me/laylwintguy')"
+                >
+                    🎧 Admin နှင့် ပြောမည်
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="nav-bar" aria-label="Main navigation">
+
+        <button
+            type="button"
+            class="nav-item active"
+            data-tab="home"
+            onclick="switchTab('home', this)"
+        >
+            <span class="nav-icon" aria-hidden="true">⌂</span>
+            <span>Home</span>
+        </button>
+
+        <button
+            type="button"
+            class="nav-item"
+            data-tab="packages"
+            onclick="switchTab('packages', this)"
+        >
+            <span class="nav-icon" aria-hidden="true">▣</span>
+            <span>Packages</span>
+        </button>
+
+        <button
+            type="button"
+            class="nav-item"
+            data-tab="support"
+            onclick="switchTab('support', this)"
+        >
+            <span class="nav-icon" aria-hidden="true">☏</span>
+            <span>Support</span>
+        </button>
+
+    </nav>
+
+    <script>
+        (() => {
+            "use strict";
+
+            /*
+             * Configuration
+             */
+
+            const API_URL =
+                "https://cherry.niceshop88.xyz/data/get_user_data";
+
+            const API_TIMEOUT_MS = 8000;
+
+            /*
+             * Telegram Web App
+             */
+
+            const tg = window.Telegram?.WebApp || null;
+
+            if (tg) {
+                try {
+                    tg.ready();
+                    tg.expand();
+                } catch (error) {
+                    console.warn("Telegram initialization warning:", error);
+                }
+            }
+
+            /*
+             * Theme
+             *
+             * Use defaults if Telegram theme values are unavailable.
+             */
+
+            function applyTelegramTheme() {
+                if (!tg) return;
+
+                const params = tg.themeParams || {};
+
+                const themeMap = {
+                    bg_color: "--tg-theme-bg-color",
+                    text_color: "--tg-theme-text-color",
+                    hint_color: "--tg-theme-hint-color",
+                    link_color: "--tg-theme-link-color",
+                    button_color: "--tg-theme-button-color",
+                    button_text_color: "--tg-theme-button-text-color",
+                    secondary_bg_color: "--tg-theme-secondary-bg-color"
+                };
+
+                Object.entries(themeMap).forEach(([key, cssVariable]) => {
+                    const value = params[key];
+
+                    if (typeof value === "string" && value.length > 0) {
+                        document.documentElement.style.setProperty(
+                            cssVariable,
+                            value
+                        );
+                    }
+                });
+            }
+
+            applyTelegramTheme();
+
+            if (tg && typeof tg.onEvent === "function") {
+                try {
+                    tg.onEvent("themeChanged", applyTelegramTheme);
+                } catch (error) {
+                    console.warn("Theme event warning:", error);
+                }
+            }
+
+            /*
+             * Greeting
+             */
+
+            const greeting = document.getElementById("user-greeting");
+
+            const userName =
+                tg?.initDataUnsafe?.user?.first_name || "မိတ်ဆွေ";
+
+            greeting.replaceChildren();
+
+            greeting.appendChild(
+                document.createTextNode("မင်္ဂလာပါ ")
+            );
+
+            const greetingName = document.createElement("span");
+
+            greetingName.textContent = userName;
+
+            greeting.appendChild(greetingName);
+
+            /*
+             * Navigation
+             */
+
+            window.switchTab = function (tabId, element) {
+                const targetTab = document.getElementById("tab-" + tabId);
+
+                if (!targetTab) return;
+
+                document.querySelectorAll(".tab-content").forEach(tab => {
+                    tab.classList.remove("active");
+                });
+
+                targetTab.classList.add("active");
+
+                document.querySelectorAll(".nav-item").forEach(nav => {
+                    nav.classList.remove("active");
+                });
+
+                element.classList.add("active");
+            };
+
+            /*
+             * External Links
+             */
+
+            window.openExternal = function (url) {
+                if (tg && typeof tg.openTelegramLink === "function") {
+                    if (url.startsWith("https://t.me/")) {
+                        tg.openTelegramLink(url);
+                        return;
+                    }
+                }
+
+                window.location.href = url;
+            };
+
+            /*
+             * Bot Actions
+             *
+             * These actions require a compatible Telegram Mini App
+             * launch context. sendData is not available in every
+             * Mini App launch mode.
+             */
+
+            window.buyPackageFromBot = function () {
+                if (!tg || typeof tg.sendData !== "function") {
+                    showMessage(
+                        "Telegram မှ ဖွင့်ပေးပါ",
+                        "Package ဝယ်ယူရန် Telegram Bot မှတစ်ဆင့် Mini App ကို ဖွင့်ပေးပါ။",
+                        "📱"
+                    );
+                    return;
+                }
+
+                try {
+                    tg.sendData("BUY_PACKAGE_MENU");
+                    tg.close();
+                } catch (error) {
+                    console.error("Package action failed:", error);
+
+                    showMessage(
+                        "လုပ်ဆောင်၍ မရပါ",
+                        "Package ဝယ်ယူမှုကို လက်ရှိတွင် မလုပ်ဆောင်နိုင်သေးပါ။ ပြန်စမ်းကြည့်ပါ။",
+                        "⚠️"
+                    );
+                }
+            };
+
+            window.requestTrial = function () {
+                if (!tg || typeof tg.sendData !== "function") {
+                    showMessage(
+                        "Telegram မှ ဖွင့်ပေးပါ",
+                        "Free Trial တောင်းဆိုရန် Telegram Bot မှတစ်ဆင့် Mini App ကို ဖွင့်ပေးပါ။",
+                        "📱"
+                    );
+                    return;
+                }
+
+                try {
+                    tg.sendData("REQUEST_TRIAL");
+                    tg.close();
+                } catch (error) {
+                    console.error("Trial request failed:", error);
+
+                    showMessage(
+                        "လုပ်ဆောင်၍ မရပါ",
+                        "Trial တောင်းဆိုမှုကို လက်ရှိတွင် မလုပ်ဆောင်နိုင်သေးပါ။ ပြန်စမ်းကြည့်ပါ။",
+                        "⚠️"
+                    );
+                }
+            };
+
+            /*
+             * Home Tab
+             */
+
+            const homeTab = document.getElementById("tab-home");
+
+            function setHomeContent(html) {
+                homeTab.innerHTML = html;
+            }
+
+            function renderLoading() {
+                setHomeContent(`
+                    <div class="card loading-card">
+                        <div class="loading-spinner"></div>
+                        <p class="loading-text">
+                            Data များ ရှာဖွေနေပါသည်...
+                        </p>
+                    </div>
+                `);
+            }
+
+            function renderServerStatus() {
+                return `
+                    <div class="card">
+                        <div class="card-title" style="font-size:0.9rem;">
+                            Server Status
+                        </div>
+
+                        <div class="server-status">
+                            <div>
+                                <span class="status-dot">●</span>
+                                Singapore SG-1 (Online)
+                            </div>
+
+                            <div>
+                                <span class="status-dot">●</span>
+                                Japan JP-1 (Online)
                             </div>
                         </div>
-                        <div style="margin-top: 24px;">
-                            <button class="btn" onclick="alert('Android App:\\nHiddify\\niOS App: V2Box')"><i class="fa-brands fa-android"></i> Download Application</button>
-                        </div>`;
-                        homeTab.innerHTML = html;
-                    } else if (data.success && data.accounts && data.accounts.length === 0) {
-                        // Success ဖြစ်သော်လည်း တကယ်တမ်း အကောင့်မရှိလျှင် မူလအတိုင်း ပြမည်
-                        renderNoAccountState();
-                    } else {
-                        // Data ပုံစံမမှန်လျှင် သို့မဟုတ် Success မဟုတ်လျှင် (Backend Python Error)
-                        homeTab.innerHTML = `<div style="padding:20px; color:var(--warning); text-align:center;">API မှ Data ပုံစံမမှန်ပါ: <br><br> ${JSON.stringify(data)}</div>`;
+                    </div>
+                `;
+            }
+
+            function renderNoAccountState() {
+                setHomeContent(`
+                    <div class="card" style="text-align:center; padding:30px 10px;">
+
+                        <p style="margin-bottom:20px; font-size:1.1rem; color:var(--text-main);">
+                            လက်ရှိတွင် အကောင့်မရှိသေးပါ။
+                        </p>
+
+                        <button
+                            type="button"
+                            class="btn"
+                            onclick="buyPackageFromBot()"
+                        >
+                            Package ဝယ်ယူရန်
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn btn-warning"
+                            onclick="requestTrial()"
+                        >
+                            ၁ ရက် အစမ်းသုံးရန်
+                        </button>
+
+                    </div>
+
+                    ${renderServerStatus()}
+                `);
+            }
+
+            function showMessage(title, message, icon = "⚠️") {
+                setHomeContent(`
+                    <div class="card" style="text-align:center; padding:30px 16px;">
+
+                        <div class="message-icon" aria-hidden="true">
+                            ${icon}
+                        </div>
+
+                        <h3 class="message-title"></h3>
+
+                        <p class="message-text"></p>
+
+                    </div>
+                `);
+
+                const card = homeTab.querySelector(".card");
+
+                card.querySelector(".message-title").textContent = title;
+
+                card.querySelector(".message-text").textContent = message;
+            }
+
+            function renderErrorState(message) {
+                setHomeContent(`
+                    <div class="card" style="text-align:center; padding:30px 16px;">
+
+                        <div class="message-icon" aria-hidden="true">
+                            ⚠️
+                        </div>
+
+                        <h3 class="message-title">
+                            Data ရယူ၍ မရသေးပါ
+                        </h3>
+
+                        <p class="message-text" id="api-error-message"></p>
+
+                        <button
+                            type="button"
+                            class="btn"
+                            id="retry-api-button"
+                        >
+                            ↻ ပြန်လည်ကြိုးစားမည်
+                        </button>
+
+                    </div>
+
+                    ${renderServerStatus()}
+                `);
+
+                document.getElementById("api-error-message").textContent =
+                    message;
+
+                document.getElementById("retry-api-button").addEventListener(
+                    "click",
+                    () => loadUserData()
+                );
+            }
+
+            /*
+             * Account Rendering
+             */
+
+            function renderAccounts(accounts) {
+                let html = "";
+
+                accounts.forEach((acc, index) => {
+                    const username = String(acc.username || "");
+
+                    const title = username.includes("_trial")
+                        ? "အစမ်းသုံး (Trial) အကောင့်"
+                        : index === 0
+                            ? "ပင်မအကောင့် (Main)"
+                            : "အပိုအကောင့် (Extra)";
+
+                    const expireTimestamp = Number(acc.expire) || 0;
+
+                    let expireDate = "Unlimited";
+
+                    if (expireTimestamp !== 0) {
+                        const dateObj = new Date(expireTimestamp * 1000);
+
+                        if (!Number.isNaN(dateObj.getTime())) {
+                            const year = dateObj.getFullYear();
+
+                            const month = String(
+                                dateObj.getMonth() + 1
+                            ).padStart(2, "0");
+
+                            const day = String(
+                                dateObj.getDate()
+                            ).padStart(2, "0");
+
+                            expireDate = `${year}-${month}-${day}`;
+                        }
                     }
-                })
-                .catch(err => {
-                    // CORS သို့မဟုတ် Network Error တက်လျှင် အနီရောင်ဖြင့် ပြရန် (Debug)
-                    homeTab.innerHTML = `
-                        <div style="text-align:center; padding: 20px;">
-                            <i class="fa-solid fa-triangle-exclamation" style="font-size: 3rem; color: #ef4444; margin-bottom: 16px;"></i>
-                            <h3 style="color: #ef4444; margin-bottom: 12px;">ချိတ်ဆက်မှု အမှားအယွင်း</h3>
-                            <p style="color: var(--text-main); font-size: 0.95rem; margin-bottom: 16px;">${err.message}</p>
-                            <div style="background-color: rgba(239, 68, 68, 0.1); padding: 12px; border-radius: 8px; font-size: 0.85rem; color: #fca5a5;">
-                                <i class="fa-solid fa-circle-info"></i> CORS ပြဿနာ သို့မဟုတ် ချိတ်ဆက်မှုပြတ်တောက်ခြင်း ဖြစ်နိုင်ပါသည်။
+
+                    const used = Math.max(0, Number(acc.used) || 0);
+
+                    const isUnlimited = acc.limit === "Unlimited";
+
+                    const limit = Number(acc.limit);
+
+                    const validLimit =
+                        !isUnlimited &&
+                        Number.isFinite(limit) &&
+                        limit > 0;
+
+                    const percent = isUnlimited
+                        ? 0
+                        : validLimit
+                            ? Math.min(
+                                Math.max((used / limit) * 100, 0),
+                                100
+                            )
+                            : 0;
+
+                    const limitText = isUnlimited
+                        ? "Unlimited"
+                        : `${acc.limit ?? 0} GB`;
+
+                    html += `
+                        <div class="card">
+
+                            <div class="card-title">
+                                ${title}
                             </div>
-                            <button class="btn btn-outline" onclick="window.location.reload()" style="margin-top:20px; color:var(--text-main); border-color:var(--text-muted);"><i class="fa-solid fa-rotate-right"></i> ပြန်လည်ကြိုးစားမည်</button>
-                        </div>`;
+
+                            <div class="data-stats">
+                                <span>${used} GB သုံးပြီး</span>
+                                <span>${limitText}</span>
+                            </div>
+
+                            <div
+                                class="progress-bar"
+                                role="progressbar"
+                                aria-valuemin="0"
+                                aria-valuemax="100"
+                                aria-valuenow="${Math.round(percent)}"
+                            >
+                                <div
+                                    class="progress-fill"
+                                    style="width:${percent}%;"
+                                ></div>
+                            </div>
+
+                            <div class="acc-detail">
+                                သက်တမ်းကုန်မည့်ရက်:
+                                <span>${expireDate}</span>
+                            </div>
+
+                        </div>
+                    `;
                 });
-        } else {
-            // Telegram မှလွဲ၍ တခြား Browser မှ ဖွင့်လျှင် (သို့) Telegram ID မရလျှင် ပြရန်
-            homeTab.innerHTML = `
-                <div style="text-align:center; padding: 20px;">
-                    <i class="fa-solid fa-user-xmark" style="font-size: 3rem; color: var(--warning); margin-bottom: 16px;"></i>
-                    <h3 style="color: var(--warning); margin-bottom: 10px;">User ID မတွေ့ပါ</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">ကျေးဇူးပြု၍ Telegram မှတစ်ဆင့် App ကို ဖွင့်ပါ။</p>
-                </div>`;
-        }
+
+                html += `
+                    ${renderServerStatus()}
+
+                    <div style="margin-top:24px;">
+                        <button
+                            type="button"
+                            class="btn"
+                            onclick="showDownloadInfo()"
+                        >
+                            📥 Download Application
+                        </button>
+                    </div>
+                `;
+
+                setHomeContent(html);
+            }
+
+            /*
+             * Download Application
+             */
+
+            window.showDownloadInfo = function () {
+                const message =
+                    "Android App: Hiddify\n" +
+                    "iOS App: V2Box";
+
+                if (tg && typeof tg.showAlert === "function") {
+                    tg.showAlert(message);
+                } else {
+                    window.alert(message);
+                }
+            };
+
+            /*
+             * API Request with Timeout
+             */
+
+            let activeController = null;
+            let requestSequence = 0;
+
+            async function loadUserData() {
+                const currentRequest = ++requestSequence;
+
+                if (activeController) {
+                    activeController.abort();
+                }
+
+                const userId = tg?.initDataUnsafe?.user?.id;
+
+                if (!userId) {
+                    showMessage(
+                        "Telegram မှ ဖွင့်ပေးပါ",
+                        "Account Information ကြည့်ရှုရန် Telegram Bot မှတစ်ဆင့် Mini App ကို ဖွင့်ပေးပါ။",
+                        "📱"
+                    );
+                    return;
+                }
+
+                activeController = new AbortController();
+
+                const controller = activeController;
+
+                const timeoutId = setTimeout(() => {
+                    controller.abort();
+                }, API_TIMEOUT_MS);
+
+                renderLoading();
+
+                try {
+                    const url = new URL(API_URL);
+
+                    url.searchParams.set("tg_id", String(userId));
+
+                    const response = await fetch(url.toString(), {
+                        method: "GET",
+                        signal: controller.signal,
+                        cache: "no-store",
+                        headers: {
+                            "Accept": "application/json"
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(
+                            `API_HTTP_ERROR_${response.status}`
+                        );
+                    }
+
+                    const data = await response.json();
+
+                    if (currentRequest !== requestSequence) {
+                        return;
+                    }
+
+                    if (!data || data.success !== true) {
+                        throw new Error("API_RESPONSE_ERROR");
+                    }
+
+                    if (!Array.isArray(data.accounts)) {
+                        throw new Error("INVALID_ACCOUNT_DATA");
+                    }
+
+                    if (data.accounts.length === 0) {
+                        renderNoAccountState();
+                        return;
+                    }
+
+                    renderAccounts(data.accounts);
+
+                } catch (error) {
+                    if (currentRequest !== requestSequence) {
+                        return;
+                    }
+
+                    console.error("NovaX API request failed:", error);
+
+                    if (error.name === "AbortError") {
+                        renderErrorState(
+                            "Server တုံ့ပြန်မှု နောက်ကျနေပါသည်။ Internet Connection ကို စစ်ဆေးပြီး ပြန်ကြိုးစားပါ။"
+                        );
+                    } else if (error instanceof TypeError) {
+                        renderErrorState(
+                            "Server ကို ချိတ်ဆက်၍ မရပါ။ Internet Connection ကို စစ်ဆေးပြီး ပြန်ကြိုးစားပါ။"
+                        );
+                    } else {
+                        renderErrorState(
+                            "Account Data ရယူရာတွင် ပြဿနာတစ်ခု ဖြစ်နေပါသည်။ ခဏစောင့်ပြီး ပြန်ကြိုးစားပါ။"
+                        );
+                    }
+
+                } finally {
+                    clearTimeout(timeoutId);
+
+                    if (activeController === controller) {
+                        activeController = null;
+                    }
+                }
+            }
+
+            /*
+             * Start API Request After Initial UI Is Ready
+             */
+
+            function startApp() {
+                requestAnimationFrame(() => {
+                    loadUserData();
+                });
+            }
+
+            if (document.readyState === "loading") {
+                document.addEventListener(
+                    "DOMContentLoaded",
+                    startApp,
+                    { once: true }
+                );
+            } else {
+                startApp();
+            }
+
+        })();
     </script>
+
 </body>
 </html>
